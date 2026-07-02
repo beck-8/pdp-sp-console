@@ -7,3 +7,5 @@ PRD + interactive wireframe + issue breakdown for an operations console for PDP 
 - **[mock/](mock/)** — interactive UX mock, single static HTML file, **fake data only** — [view live](https://beck-8.github.io/pdp-sp-console/mock/)
 
 All numbers, addresses, and names in the mock are invented for illustration.
+
+Note: the mock loads its fonts from Google Fonts for convenience — the real implementation keeps Curio's no-external-dependency rule and must self-host fonts (or reuse Curio's bundled JetBrains Mono).

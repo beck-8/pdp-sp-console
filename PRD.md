@@ -63,14 +63,13 @@ Everything an SP sees in M1 is derivable from tables Curio already writes — no
 - **M4** business dashboard.
 - **M3** Payments & FOC and **M5** Setup wizard run in parallel; **M6** Storage & Tasks is filler.
 
-Critical path ≈ 16 engineering-days; two engineers land everything in ~3 weeks. Full slicing, estimates and suggested split: `TASKS.md` (**EPIC: Curio PDP SP Console** — each milestone files as one issue).
+Milestone details and dependencies: `TASKS.md` (**EPIC: Curio PDP SP Console** — each milestone files as one issue; the engineer who takes it owns the finer breakdown).
 
 ## Open questions
 
 1. `UIMode` via config vs. build tag for the reduced menu — config proposed (works for existing binaries, no packaging change).
 2. USDFC send-to-treasury action in v1, or read-only + settle-now first? Proposal: read-only + settle-now in M3, fund-moving send behind a follow-up with explicit confirm UX. (Change-payee is settled: not possible in the registry contract — see Appendix A §3.)
-3. Font addition (Instrument Sans) vs all-JetBrains-Mono.
-4. Does `pdp_proving_history` belong in curio upstream (yes, proposed) so downstream PDP builds inherit it via the shared `pdp/` package?
+3. Font addition (Instrument Sans, self-hosted) vs all-JetBrains-Mono.
 
 **Resolved during review (2026-07-02):** latency = own measurements only (A§1); no change-payee — contract has no such function, verified against the registry ABI (A§3); ingest funnel sources = pdpv0 tables, not mk20 (A§4); single-node compact rendering; TLS reverse-proxy checklist incl. real-client-IP headers `X-Forwarded-For`/`X-Real-IP` (A§5).
 
@@ -104,7 +103,7 @@ Legend: ✅ = RPC/data exists today · 🔶 = derivable from existing tables, ne
 | Dataset drawer: pieces list | `pdp_data_set_pieces` (+ `pdp_piecerefs` sizes) | 🔶 |
 | Dataset drawer: proving params, last proven | `pdp_data_sets` + `pdp_proving_history` | 🔶/🔴 |
 | Dataset drawer: rail + rate | dataset→rail mapping via FWSS dataset-created info; rate from FilecoinPay `getRail` | 🔴 chain read |
-| Actions: prove now / terminate | existing task kick + `pdp_delete_data_set` lifecycle | 🔶 |
+| Actions: prove now / terminate | **Out of M1 — future milestone.** M1 is strictly read-only. These are operational actions (terminate especially is high-risk) and need their own confirm UX before they ship; the underlying paths exist (task kick, `pdp_delete_data_set` lifecycle). | later |
 
 ## A§3 Payments & FOC
 
@@ -112,10 +111,11 @@ Legend: ✅ = RPC/data exists today · 🔶 = derivable from existing tables, ne
 |---|---|---|
 | Registry card + update/deregister | ✅ `FSRegistryStatus`, `FSUpdatePDP`, `FSDeregister` (webrpc/pdp.go) — reuse as-is |
 | Balances: FIL gas wallet | ✅ wallet RPCs; runway = balance / observed burn | 🔶 |
-| Balances: USDFC earned / accrued-unsettled | ERC-20 `balanceOf` + FilecoinPay `getRailsForPayeeAndToken` + per-rail accrual (rate × epochs since settledUpto) | 🔴 chain reads |
-| Rails table + funded-until warning | FilecoinPay rail state (`getRail`: rate, settledUpto, lockup, payer) | 🔴 chain reads |
-| Recent settlements table | `filecoin_payment_transactions` + tx receipts | 🔶 |
-| Actions: settle-all-now, send-to-treasury | settle = kick existing settle task; send = ordinary USDFC wallet send. **No change-payee action**: verified against the deployed ServiceProviderRegistry ABI — only `updateProviderInfo(name, description)` and `updateProduct` exist; `payee` is fixed at `registerProvider`. "Change wallet" is served by moving earnings out with a wallet send; changing payee itself would mean deregister + re-register (new provider ID) — not a console action. | 🔴 send endpoint (confirm modal) |
+| Balances: USDFC earned / accrued-unsettled | ERC-20 `balanceOf` + per-rail accrual; the rail-discovery and rail-view logic already exists in `lib/filecoinpayment/utils.go` (used by `tasks/pay`) — expose it through webrpc | 🔶 |
+| Rails table + funded-until warning | same rail-view chain reads (rate, settledUpto, endEpoch, lockup, payer) | 🔶 |
+| Recent settlements table | `filecoin_payment_transactions` + `message_waits_eth` — both already written atomically by `lib/filecoinpayment` on every `settleRail`, receipts tracked by `tasks/pay/watcher.go` | 🔶 |
+| Action (M3): settle now | kick the existing `tasks/pay` SettleTask | 🔶 |
+| Action (follow-up, **not** M3): send-to-treasury | ordinary USDFC wallet send behind an explicit confirm UX. **No change-payee action ever**: verified against the deployed ServiceProviderRegistry ABI — only `updateProviderInfo(name, description)` and `updateProduct` exist; `payee` is fixed at `registerProvider`. "Change wallet" is served by moving earnings out with a wallet send; changing payee itself would mean deregister + re-register (new provider ID) — not a console action. | 🔴 send endpoint |
 
 ## A§4 Storage & Tasks
 
@@ -141,9 +141,9 @@ Plus read-only endpoint/products summary cards (✅ config + `ListProducts`).
 
 # Appendix B — Data collection we must add (backend prerequisites)
 
-1. **`pdp_proving_history`** — Curio keeps no record of past proving periods (rows in `pdp_data_sets` are overwritten each period; harmony_task_history ages out). Add a small table written by ProveTask/NextProvingPeriodTask: `(data_set_id, period_start_epoch, prove_epoch NULL, faulted bool, gas_used, tx_hash)`. Powers: success-30d KPI, weekly chart, per-dataset fault counts, "last proven". *Alternative rejected:* reading PDPVerifier events from the chain node — the attached node may prune state and it couples the UI to event indexing; writing our own outcomes is cheap and exact.
+1. **`pdp_proving_history`** — Curio keeps no record of past proving periods (rows in `pdp_data_sets` are overwritten each period; harmony_task_history ages out). Add a small table written from `tasks/pdpv0` — `ProveTask`, `NextProvingPeriodTask`, and the failure path in `failure_handling.go`: `(data_set_id, period_start_epoch, prove_epoch NULL, faulted bool, gas_used, tx_hash)`. Powers: success-30d KPI, weekly chart, per-dataset fault counts, "last proven". *Alternative rejected:* reading PDPVerifier events from the chain node — the attached node may prune state and it couples the UI to event indexing; writing our own outcomes is cheap and exact.
 2. **Settlement/gas aggregates** — join `filecoin_payment_transactions` and proof txs with `message_waits_eth` receipts; likely a small daily-rollup poller for the 30d charts instead of scanning per page load.
-3. **FilecoinPay/ERC-20 chain reads** — new webrpc methods calling `getRailsForPayeeAndToken`, `getRail`, `balanceOf` via the configured eth RPC (same pattern as existing FSRegistry reads). No indexing; live reads with short cache.
+3. **FilecoinPay/ERC-20 chain reads** — new webrpc methods exposing the rail-discovery/rail-view logic that already exists in `lib/filecoinpayment/utils.go`, plus ERC-20 `balanceOf`. No indexing; live reads with short cache.
 4. **(Phase 2) serve latency** — request→last-byte histograms in the `/piece` and `/ipfs` handlers + addPieces confirmation time.
 
 # Appendix C — Technical approach (frontend)
