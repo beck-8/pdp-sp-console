@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Curio · PDP SP Console — UX Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet">
+<style>
+/* ---------- design tokens ---------- */
+:root{
+  --bg:        #0d1218;   /* page */
+  --panel:     #141a21;   /* card surface (charts validated against this) */
+  --panel-2:   #181f28;   /* raised / hover */
+  --inset:     #0f141b;   /* wells, code, table header */
+  --line:      #232c37;   /* hairline borders */
+  --line-2:    #2e3947;   /* strong borders */
+  --ink:       #e8edf2;   /* primary text */
+  --ink-2:     #9aa7b4;   /* secondary text */
+  --ink-3:     #62707e;   /* muted text */
+  --accent:    #1dc8cc;   /* curio teal */
+  --accent-dim:#12484d;
+  --good:      #2dc98b;
+  --warn:      #f2b32c;
+  --bad:       #e35d5d;
+  --series-1:  #3987e5;   /* categorical, validated (dark) */
+  --series-2:  #1baf7a;
+  --series-3:  #c98500;
+  --series-4:  #9085e9;
+  --r-s: 6px; --r-m: 10px; --r-l: 14px;
+  --font-ui:   "Instrument Sans", -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+*{box-sizing:border-box; margin:0; padding:0}
+html{height:100%}
+body{
+  min-height:100%; background:var(--bg); color:var(--ink);
+  font:14px/1.5 var(--font-ui);
+  background-image:
+    radial-gradient(1200px 500px at 85% -10%, rgba(29,200,204,.055), transparent 60%),
+    radial-gradient(900px 420px at -10% 110%, rgba(57,135,229,.045), transparent 60%);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+::selection{background:rgba(29,200,204,.28)}
+
+/* ---------- app frame ---------- */
+.app{display:grid; grid-template-columns:228px 1fr; min-height:100vh}
+.side{
+  border-right:1px solid var(--line); background:rgba(13,18,24,.6);
+  padding:18px 12px; position:sticky; top:0; height:100vh; display:flex; flex-direction:column; gap:4px;
+}
+.brand{display:flex; align-items:center; gap:10px; padding:4px 10px 16px}
+.brand .mark{
+  width:30px;height:30px;border-radius:8px; display:grid;place-items:center;
+  background:linear-gradient(135deg, #12484d, #0e2a33); border:1px solid rgba(29,200,204,.35);
+  color:var(--accent); font:600 13px var(--font-mono);
+}
+.brand b{font-size:14px; letter-spacing:.01em}
+.brand small{display:block; color:var(--ink-3); font:500 10.5px var(--font-mono); letter-spacing:.08em; text-transform:uppercase}
+.net{
+  margin:0 10px 14px; display:inline-flex; align-items:center; gap:7px;
+  border:1px solid var(--line); border-radius:999px; padding:4px 10px;
+  font:500 11px var(--font-mono); color:var(--ink-2); width:fit-content;
+}
+.net i{width:7px;height:7px;border-radius:50%;background:var(--good); box-shadow:0 0 8px rgba(45,201,139,.7)}
+.ngroup{margin:12px 6px 4px; font:600 10px var(--font-ui); letter-spacing:.12em; text-transform:uppercase; color:var(--ink-3); padding:0 6px}
+.nav a{
+  display:flex; align-items:center; gap:10px; padding:7px 10px; border-radius:var(--r-s);
+  color:var(--ink-2); font-weight:500; border:1px solid transparent;
+}
+.nav a svg{width:15px;height:15px; opacity:.75; flex:none}
+.nav a:hover{background:var(--panel-2); color:var(--ink)}
+.nav a.on{background:linear-gradient(180deg, rgba(29,200,204,.13), rgba(29,200,204,.07)); border-color:rgba(29,200,204,.28); color:#c9f5f6}
+.nav a.on svg{opacity:1; color:var(--accent)}
+.nav .cnt{margin-left:auto; font:600 10.5px var(--font-mono); color:var(--ink-3); background:var(--inset); border:1px solid var(--line); border-radius:999px; padding:1px 7px}
+.nav .cnt.warn{color:var(--warn); border-color:rgba(242,179,44,.4)}
+.side .foot{margin-top:auto; padding:10px; color:var(--ink-3); font:400 11px var(--font-mono)}
+.side .foot b{color:var(--ink-2)}
+
+/* ---------- topbar ---------- */
+.main{min-width:0}
+.top{
+  display:flex; align-items:center; gap:14px; padding:14px 28px;
+  border-bottom:1px solid var(--line); position:sticky; top:0; z-index:40;
+  background:rgba(13,18,24,.82); backdrop-filter:blur(10px);
+}
+.top h1{font-size:16px; font-weight:600; letter-spacing:-.01em}
+.top .sub{color:var(--ink-3); font-size:12.5px; margin-top:1px}
+.top .right{margin-left:auto; display:flex; align-items:center; gap:10px}
+.chip{
+  display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line);
+  background:var(--panel); border-radius:999px; padding:5px 12px; font:500 12px var(--font-mono); color:var(--ink-2);
+}
+.chip i{width:7px;height:7px;border-radius:50%}
+.chip.ok i{background:var(--good); box-shadow:0 0 7px rgba(45,201,139,.6)}
+.chip.warn{border-color:rgba(242,179,44,.4); color:#f6cf7d}
+.chip.warn i{background:var(--warn)}
+.content{padding:24px 28px 64px; max-width:1240px}
+
+/* ---------- primitives ---------- */
+.grid{display:grid; gap:14px}
+.cols-4{grid-template-columns:repeat(4,1fr)}
+.cols-3{grid-template-columns:repeat(3,1fr)}
+.cols-2{grid-template-columns:repeat(2,1fr)}
+.span-2{grid-column:span 2}
+@media (max-width:1100px){.cols-4{grid-template-columns:repeat(2,1fr)} .cols-3{grid-template-columns:1fr}}
+.card{
+  background:linear-gradient(180deg, rgba(255,255,255,.015), transparent 40%), var(--panel);
+  border:1px solid var(--line); border-radius:var(--r-m); padding:16px 18px;
+  box-shadow:0 1px 0 rgba(0,0,0,.25);
+}
+.card h3{font-size:12.5px; font-weight:600; color:var(--ink-2); letter-spacing:.02em; display:flex; align-items:center; gap:8px}
+.card h3 .hint{margin-left:auto; font:400 11px var(--font-mono); color:var(--ink-3)}
+.kpi .v{font:600 24px/1.15 var(--font-mono); letter-spacing:-.02em; margin-top:8px; font-feature-settings:"tnum"}
+.kpi .v small{font-size:13px; color:var(--ink-3); font-weight:500}
+.kpi .d{margin-top:6px; font-size:12px; color:var(--ink-3); display:flex; gap:6px; align-items:center}
+.delta{font:600 11px var(--font-mono); border-radius:5px; padding:1px 6px}
+.delta.up{color:var(--good); background:rgba(45,201,139,.12)}
+.delta.dn{color:var(--bad); background:rgba(227,93,93,.12)}
+.delta.flat{color:var(--ink-3); background:var(--inset)}
+.banner{
+  display:flex; align-items:center; gap:12px; border:1px solid rgba(45,201,139,.30);
+  background:linear-gradient(90deg, rgba(45,201,139,.10), rgba(45,201,139,.03) 55%, transparent);
+  border-radius:var(--r-m); padding:12px 16px; margin-bottom:16px;
+}
+.banner.warn{border-color:rgba(242,179,44,.35); background:linear-gradient(90deg, rgba(242,179,44,.10), rgba(242,179,44,.03) 55%, transparent)}
+.banner .dot{width:9px;height:9px;border-radius:50%;background:var(--good); box-shadow:0 0 10px rgba(45,201,139,.8); flex:none}
+.banner.warn .dot{background:var(--warn); box-shadow:0 0 10px rgba(242,179,44,.8)}
+.banner b{font-size:13.5px}
+.banner span{color:var(--ink-2); font-size:12.5px}
+.banner .act{margin-left:auto}
+
+.pill{display:inline-flex; align-items:center; gap:6px; font:600 10.5px var(--font-mono); letter-spacing:.04em; border-radius:999px; padding:2.5px 9px; text-transform:uppercase; border:1px solid transparent; white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%; background:currentColor}
+.pill.ok{color:#7fe0b6; background:rgba(45,201,139,.10); border-color:rgba(45,201,139,.3)}
+.pill.warn{color:#f6cf7d; background:rgba(242,179,44,.10); border-color:rgba(242,179,44,.3)}
+.pill.bad{color:#f1a0a0; background:rgba(227,93,93,.10); border-color:rgba(227,93,93,.32)}
+.pill.mut{color:var(--ink-3); background:var(--inset); border-color:var(--line)}
+.pill.acc{color:#9be9eb; background:rgba(29,200,204,.10); border-color:rgba(29,200,204,.3)}
+
+table{width:100%; border-collapse:collapse; font-size:12.5px}
+th{
+  text-align:left; font:600 10.5px var(--font-ui); letter-spacing:.09em; text-transform:uppercase;
+  color:var(--ink-3); padding:8px 10px; border-bottom:1px solid var(--line); white-space:nowrap;
+}
+td{padding:9px 10px; border-bottom:1px solid rgba(35,44,55,.55); vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr.click{cursor:pointer}
+tbody tr.click:hover td{background:rgba(255,255,255,.022)}
+td.num, th.num{text-align:right; font-family:var(--font-mono); font-feature-settings:"tnum"}
+.mono{font-family:var(--font-mono); font-size:12px}
+.addr{font-family:var(--font-mono); font-size:11.5px; color:var(--ink-2); cursor:copy; border-bottom:1px dotted var(--line-2)}
+.addr:hover{color:var(--accent)}
+.mut{color:var(--ink-3)} .sm{font-size:11.5px}
+
+.btn{
+  display:inline-flex; align-items:center; gap:7px; border-radius:7px; padding:6px 13px; cursor:pointer;
+  border:1px solid var(--line-2); background:var(--panel-2); color:var(--ink); font:600 12px var(--font-ui);
+}
+.btn:hover{border-color:var(--ink-3)}
+.btn.pri{background:linear-gradient(180deg, #17a7ab, #128286); border-color:#1dc8cc55; color:#06272b}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn.sm{padding:4px 10px; font-size:11.5px}
+.btn.danger{color:#f1a0a0; border-color:rgba(227,93,93,.35)}
+
+.meter{height:6px; border-radius:99px; background:var(--inset); border:1px solid var(--line); overflow:hidden}
+.meter i{display:block; height:100%; border-radius:99px; background:linear-gradient(90deg, var(--accent), #3987e5)}
+.meter.hot i{background:linear-gradient(90deg, var(--warn), var(--bad))}
+
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.seg button{border:none; background:transparent; color:var(--ink-3); font:600 11.5px var(--font-ui); padding:5px 12px; cursor:pointer}
+.seg button.on{background:var(--panel-2); color:var(--ink)}
+.seg button + button{border-left:1px solid var(--line)}
+
+/* charts */
+.chartbox{margin-top:14px; position:relative}
+.legend{display:flex; gap:16px; margin-top:10px; flex-wrap:wrap}
+.legend span{display:inline-flex; align-items:center; gap:7px; font-size:11.5px; color:var(--ink-2)}
+.legend em{width:10px; height:10px; border-radius:3px; font-style:normal}
+.legend em.line{height:3px; border-radius:2px; width:14px}
+#tip{
+  position:fixed; z-index:90; pointer-events:none; display:none;
+  background:#0b1015; border:1px solid var(--line-2); border-radius:8px; padding:8px 11px;
+  font:500 11.5px var(--font-mono); color:var(--ink); box-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+#tip .t{color:var(--ink-3); font-size:10.5px; margin-bottom:3px}
+#tip .r{display:flex; align-items:center; gap:7px}
+#tip .r i{width:8px;height:8px;border-radius:2px}
+
+/* attention list */
+.att{display:flex; flex-direction:column}
+.att .row{display:flex; gap:12px; align-items:flex-start; padding:11px 2px; border-bottom:1px solid rgba(35,44,55,.55)}
+.att .row:last-child{border-bottom:none}
+.att .sev{width:8px; height:8px; border-radius:50%; margin-top:5px; flex:none}
+.att b{font-size:12.5px; font-weight:600}
+.att p{color:var(--ink-3); font-size:11.5px; margin-top:1px}
+.att .when{margin-left:auto; color:var(--ink-3); font:400 10.5px var(--font-mono); white-space:nowrap}
+
+/* proving window strip */
+.strip{position:relative; height:64px; margin-top:18px}
+.strip .axis{position:absolute; left:0; right:0; top:38px; height:2px; background:var(--line)}
+.strip .tick{position:absolute; top:44px; color:var(--ink-3); font:500 10px var(--font-mono); transform:translateX(-50%)}
+.strip .win{position:absolute; top:30px; height:18px; border-radius:5px; min-width:10px}
+.strip .win.open{background:rgba(242,179,44,.30); border:1px solid rgba(242,179,44,.7)}
+.strip .win.next{background:rgba(57,135,229,.25); border:1px solid rgba(57,135,229,.6)}
+.strip .now{position:absolute; top:22px; bottom:12px; width:2px; background:var(--accent); box-shadow:0 0 8px rgba(29,200,204,.8)}
+.strip .nowlab{position:absolute; top:6px; transform:translateX(-50%); color:var(--accent); font:600 10px var(--font-mono)}
+
+/* drawer */
+.scrim{position:fixed; inset:0; background:rgba(5,8,12,.6); backdrop-filter:blur(2px); z-index:60; display:none}
+.drawer{
+  position:fixed; top:0; right:-620px; width:600px; max-width:94vw; height:100vh; z-index:70;
+  background:var(--bg); border-left:1px solid var(--line-2); transition:right .22s ease;
+  display:flex; flex-direction:column;
+}
+.drawer.open{right:0}
+.scrim.open{display:block}
+.drawer .dhead{padding:18px 22px; border-bottom:1px solid var(--line); display:flex; align-items:center; gap:12px}
+.drawer .dhead h2{font-size:15px; font-weight:650}
+.drawer .dbody{overflow-y:auto; padding:18px 22px; display:flex; flex-direction:column; gap:16px}
+.drawer .x{margin-left:auto; cursor:pointer; color:var(--ink-3); font-size:18px; background:none; border:none}
+.drawer .x:hover{color:var(--ink)}
+.kv{display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--r-s); overflow:hidden}
+.kv div{background:var(--panel); padding:9px 12px}
+.kv label{display:block; font:600 9.5px var(--font-ui); letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); margin-bottom:2px}
+.kv b{font:500 12.5px var(--font-mono); font-weight:500}
+
+/* wizard */
+.wiz{display:flex; flex-direction:column}
+.wiz .step{display:flex; gap:14px; padding:13px 4px; border-bottom:1px solid rgba(35,44,55,.55); align-items:flex-start}
+.wiz .step:last-child{border-bottom:none}
+.wiz .ic{width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font:700 11px var(--font-mono); flex:none; margin-top:1px}
+.wiz .ic.done{background:rgba(45,201,139,.14); color:var(--good); border:1px solid rgba(45,201,139,.45)}
+.wiz .ic.now{background:rgba(242,179,44,.13); color:var(--warn); border:1px solid rgba(242,179,44,.5)}
+.wiz .ic.todo{background:var(--inset); color:var(--ink-3); border:1px solid var(--line)}
+.wiz b{font-size:13px}
+.wiz p{color:var(--ink-3); font-size:11.5px; margin-top:2px; max-width:520px}
+.wiz .st-act{margin-left:auto; flex:none}
+code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px; padding:1px 6px; font:500 11px var(--font-mono); color:#9be9eb}
+
+.page{display:none} .page.on{display:block}
+.mock-tag{
+  position:fixed; bottom:14px; right:16px; z-index:99; font:600 10px var(--font-mono); letter-spacing:.1em;
+  color:var(--warn); border:1px dashed rgba(242,179,44,.5); border-radius:6px; padding:4px 9px; background:rgba(13,18,24,.8);
+}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+<div class="mock-tag">UX MOCK · FAKE DATA</div>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side">
+    <div class="brand">
+      <div class="mark">▚</div>
+      <div><b>Curio</b><small>SP Console</small></div>
+    </div>
+    <div class="net"><i></i>MAINNET · epoch 6,143,120</div>
+
+    <div class="ngroup">Operate</div>
+    <nav class="nav">
+      <a href="#/dashboard" data-page="dashboard">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="9" y="1.5" width="5.5" height="5.5" rx="1"/><rect x="1.5" y="9" width="5.5" height="5.5" rx="1"/><rect x="9" y="9" width="5.5" height="5.5" rx="1"/></svg>
+        Dashboard</a>
+      <a href="#/datasets" data-page="datasets">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="8" cy="3.5" rx="5.5" ry="2"/><path d="M2.5 3.5v9c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2v-9"/><path d="M2.5 8c0 1.1 2.5 2 5.5 2s5.5-.9 5.5-2"/></svg>
+        Datasets &amp; Proving <span class="cnt warn">1</span></a>
+      <a href="#/payments" data-page="payments">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="13" height="10" rx="1.5"/><path d="M1.5 6.5h13"/><path d="M4 10.5h3"/></svg>
+        Payments &amp; FOC</a>
+      <a href="#/storage" data-page="storage">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2" width="13" height="5" rx="1"/><rect x="1.5" y="9" width="13" height="5" rx="1"/><circle cx="4.2" cy="4.5" r=".9" fill="currentColor" stroke="none"/><circle cx="4.2" cy="11.5" r=".9" fill="currentColor" stroke="none"/></svg>
+        Storage &amp; Tasks <span class="cnt">3</span></a>
+    </nav>
+
+    <div class="ngroup">Configure</div>
+    <nav class="nav">
+      <a href="#/setup" data-page="setup">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M12.6 3.4l-1.4 1.4M4.8 11.2l-1.4 1.4"/><circle cx="8" cy="8" r="2.6"/></svg>
+        Service Setup <span class="cnt warn">2</span></a>
+      <a href="#" onclick="return false" style="opacity:.5">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4h12M2 8h12M2 12h8"/></svg>
+        Full Config (advanced)</a>
+    </nav>
+
+    <div class="foot">curio-pdp <b>v1.28.0</b><br>1 node · db ok · ui mock</div>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <div class="top">
+      <div><h1 id="ttl">Dashboard</h1><div class="sub" id="sub">Provider #14 · pdpsp.example.com</div></div>
+      <div class="right">
+        <span class="chip ok" id="healthchip"><i></i>PROVING ON SCHEDULE</span>
+        <span class="chip"><i style="background:var(--series-1)"></i>0xd3…9A4f · 41.2 FIL</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+    <!-- ================= DASHBOARD ================= -->
+    <section class="page" id="pg-dashboard">
+      <div class="banner" id="okbanner">
+        <span class="dot"></span>
+        <div><b>All systems operational.</b> <span>18 datasets proven this period · 0 faults in 7 days · next challenge window in 2 h 14 m.</span></div>
+        <span class="act mut sm mono">updated 12 s ago</span>
+      </div>
+
+      <div class="grid cols-4">
+        <div class="card kpi"><h3>Data under proof</h3><div class="v">24.6 <small>TiB</small></div><div class="d"><span class="delta up">+1.8 TiB</span> 30 d</div></div>
+        <div class="card kpi"><h3>Proving success · 30 d</h3><div class="v">99.82<small>%</small></div><div class="d"><span class="delta flat">2 faulted periods</span></div></div>
+        <div class="card kpi"><h3>Net income · 30 d</h3><div class="v">58.4 <small>USDFC</small></div><div class="d"><span class="delta up">+12.6%</span> vs prior 30 d</div></div>
+        <div class="card kpi"><h3>Gas spent · 30 d</h3><div class="v">0.84 <small>FIL</small></div><div class="d"><span class="delta dn">+0.11</span> proofs + settlement</div></div>
+      </div>
+
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Proving activity <span class="hint">weekly · 12 w</span></h3>
+          <div class="chartbox" id="ch-proving"></div>
+          <div class="legend"><span><em style="background:var(--good)"></em>proofs submitted</span><span><em style="background:var(--bad)"></em>faulted periods</span></div>
+        </div>
+        <div class="card">
+          <h3>Earnings vs gas <span class="hint">daily · 30 d</span></h3>
+          <div class="chartbox" id="ch-earn"></div>
+          <div class="legend"><span><em style="background:var(--series-2)"></em>settled USDFC</span><span><em class="line" style="background:var(--series-3)"></em>gas (FIL, right-sized ×50)</span></div>
+        </div>
+      </div>
+
+      <div class="grid cols-3" style="margin-top:14px">
+        <div class="card span-2">
+          <h3>Needs attention <span class="hint">3 items</span></h3>
+          <div class="att" style="margin-top:8px">
+            <div class="row"><span class="sev" style="background:var(--warn)"></span>
+              <div><b>3 challenge windows open within 6 h (#31 first, in 2 h 14 m)</b><p>prove_at_epoch 6,143,388 · window 60 epochs · ProveTasks scheduled per dataset</p></div><span class="when">epoch 6,143,388</span></div>
+            <div class="row"><span class="sev" style="background:var(--warn)"></span>
+              <div><b>PDP wallet gas runway ~19 days</b><p>0xd3…9A4f holds 41.2 FIL · burning ~2.1 FIL/mo at current proof + settlement cadence</p></div><span class="when">balance watch</span></div>
+            <div class="row"><span class="sev" style="background:var(--bad)"></span>
+              <div><b>2 pipeline tasks failed: CommP on node curio-01</b><p>piece bafk…q2ci from client 0x91…77E3 · retried 1/5 · <a href="#/storage">restart from Storage &amp; Tasks →</a></p></div><span class="when">18 m ago</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>/piece serve latency <span class="hint">measured in Curio · 7 d</span></h3>
+          <div class="chartbox" id="ch-lat"></div>
+          <div class="legend"><span><em class="line" style="background:var(--series-1)"></em>p50 · request→last byte</span><span><em class="line" style="background:var(--series-4)"></em>p95</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= DATASETS & PROVING ================= -->
+    <section class="page" id="pg-datasets">
+      <div class="grid cols-4">
+        <div class="card kpi"><h3>Active datasets</h3><div class="v">18</div><div class="d">2 terminating · 41 all-time</div></div>
+        <div class="card kpi"><h3>Proven this period</h3><div class="v">17<small>/18</small></div><div class="d">#31 window opens 2 h 14 m</div></div>
+        <div class="card kpi"><h3>Faulted periods · 7 d</h3><div class="v" style="color:var(--good)">0</div><div class="d">2 in last 30 d (dataset #17)</div></div>
+        <div class="card kpi"><h3>Next deadline</h3><div class="v mono">2 h 44 m</div><div class="d">dataset #31 · 2 more due within 6 h</div></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Challenge windows · next 24 h <span class="hint">each block = one dataset's open-to-deadline window</span></h3>
+        <div class="strip" id="strip"></div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Datasets <span class="hint">click a row for pieces, proving &amp; rail detail</span></h3>
+        <div style="overflow-x:auto; margin-top:8px">
+        <table id="ds-table">
+          <thead><tr>
+            <th>ID</th><th>Client</th><th class="num">Pieces</th><th class="num">Size</th>
+            <th>Proving status</th><th class="num">Next challenge</th><th class="num">Deadline in</th>
+            <th class="num">Faults 30d</th><th>Rail</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PAYMENTS & FOC ================= -->
+    <section class="page" id="pg-payments">
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>FOC registry <span class="hint">ServiceProviderRegistry</span></h3>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:12px">
+            <span class="pill ok">REGISTERED</span><span class="pill acc">PROVIDER #14</span><span class="pill mut">PDP v0</span>
+          </div>
+          <div class="kv" style="margin-top:12px">
+            <div><label>Name</label><b>Example Storage Co</b></div>
+            <div><label>Payee</label><b class="addr">0x8bF2…3c91</b></div>
+            <div><label>Price</label><b>2.5 USDFC / TiB / mo</b></div>
+            <div><label>Piece size</label><b>1 MiB – 64 GiB</b></div>
+            <div><label>Service URL</label><b>https://pdpsp.example.com</b></div>
+            <div><label>Proving period</label><b>2880 epochs · 24 h</b></div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:12px">
+            <button class="btn sm">Update offering</button>
+            <button class="btn sm ghost danger">Deregister</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Balances</h3>
+          <div style="margin-top:12px; display:flex; flex-direction:column; gap:13px">
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:12px"><span class="mut">USDFC · earned, in wallet</span><b class="mono">312.40</b></div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:12px"><span class="mut">USDFC · accrued, unsettled</span><b class="mono" style="color:var(--series-3)">14.92</b></div>
+              <div class="sm mut" style="margin-top:2px">across 5 active rails · auto-settle every 10 min</div>
+            </div>
+            <div>
+              <div style="display:flex; justify-content:space-between; font-size:12px"><span class="mut">FIL · gas wallet 0xd3…9A4f</span><b class="mono">41.2</b></div>
+              <div class="meter" style="margin-top:6px"><i style="width:63%"></i></div>
+              <div class="sm mut" style="margin-top:3px">~19 day runway at current burn</div>
+            </div>
+          </div>
+          <div style="display:flex; gap:8px; margin-top:14px">
+            <button class="btn sm pri">Settle all now</button>
+            <button class="btn sm">Send USDFC to treasury…</button>
+          </div>
+          <div class="sm mut" style="margin-top:8px">Payee is fixed at registration (contract has no change-payee); move earnings out with a normal wallet send.</div>
+        </div>
+
+        <div class="card">
+          <h3>Settlement health</h3>
+          <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px" class="sm">
+            <div style="display:flex; justify-content:space-between"><span class="mut">Last settlement run</span><b class="mono">6 m ago · ok</b></div>
+            <div style="display:flex; justify-content:space-between"><span class="mut">Settled · 30 d</span><b class="mono">58.4 USDFC</b></div>
+            <div style="display:flex; justify-content:space-between"><span class="mut">Settlement gas · 30 d</span><b class="mono">0.21 FIL</b></div>
+            <div style="display:flex; justify-content:space-between"><span class="mut">Failed settle txs · 30 d</span><b class="mono" style="color:var(--good)">0</b></div>
+            <div style="display:flex; justify-content:space-between"><span class="mut">Payer lockup at risk</span><b class="mono" style="color:var(--warn)">1 rail &lt; 10 d funded</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Payment rails <span class="hint">FilecoinPay · USDFC</span></h3>
+        <div style="overflow-x:auto; margin-top:8px">
+        <table id="rail-table">
+          <thead><tr>
+            <th>Rail</th><th>Payer</th><th>Datasets</th><th class="num">Rate / mo</th>
+            <th class="num">Settled</th><th class="num">Unsettled</th><th class="num">Funded until</th><th>Last settle</th><th>State</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Recent settlements</h3>
+        <div style="overflow-x:auto; margin-top:8px">
+        <table>
+          <thead><tr><th>Time</th><th>Rail</th><th class="num">Net USDFC</th><th class="num">Network fee</th><th class="num">Up-to epoch</th><th>Tx</th></tr></thead>
+          <tbody>
+            <tr><td class="mono sm">today 09:12</td><td class="mono">#812</td><td class="num">3.921</td><td class="num mut">0.004</td><td class="num">6,142,900</td><td><a class="mono sm" href="#">0x6c1d…e04a ↗</a></td></tr>
+            <tr><td class="mono sm">today 09:12</td><td class="mono">#799</td><td class="num">1.204</td><td class="num mut">0.004</td><td class="num">6,142,900</td><td><a class="mono sm" href="#">0x9a7e…1bd2 ↗</a></td></tr>
+            <tr><td class="mono sm">yesterday 21:02</td><td class="mono">#812</td><td class="num">3.918</td><td class="num mut">0.005</td><td class="num">6,140,020</td><td><a class="mono sm" href="#">0x2f44…a9c8 ↗</a></td></tr>
+            <tr><td class="mono sm">yesterday 21:02</td><td class="mono">#764</td><td class="num">0.812</td><td class="num mut">0.004</td><td class="num">6,140,020</td><td><a class="mono sm" href="#">0xbb01…7ee3 ↗</a></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= STORAGE & TASKS ================= -->
+    <section class="page" id="pg-storage">
+      <div class="grid cols-3" id="paths"></div>
+
+      <div class="grid cols-2" style="margin-top:14px">
+        <div class="card">
+          <h3>Ingest pipeline <span class="hint">pdpv0 · uploads → on-chain → indexed · live</span></h3>
+          <div id="funnel" style="margin-top:14px"></div>
+        </div>
+        <div class="card">
+          <h3>Failed tasks <span class="hint">last 24 h</span></h3>
+          <div style="overflow-x:auto; margin-top:8px">
+          <table>
+            <thead><tr><th>Task</th><th>Node</th><th class="num">Fails</th><th>Last error</th><th></th></tr></thead>
+            <tbody>
+              <tr><td class="mono">CommP</td><td class="mono sm">curio-01</td><td class="num" style="color:var(--bad)">2</td><td class="sm mut" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">read /dev/loop3: i/o timeout</td><td><button class="btn sm">Restart</button></td></tr>
+              <tr><td class="mono">IndexPiece</td><td class="mono sm">curio-01</td><td class="num" style="color:var(--bad)">1</td><td class="sm mut" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">ipni: provider not ready</td><td><button class="btn sm">Restart</button></td></tr>
+            </tbody>
+          </table>
+          </div>
+          <div class="sm mut" style="margin-top:10px">All other task types healthy · 1,284 tasks completed in 24 h</div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:14px">
+        <h3>Node <span class="hint">expands to a cluster table when more nodes join</span></h3>
+        <div style="overflow-x:auto; margin-top:8px">
+        <table>
+          <thead><tr><th>Node</th><th>Tasks now</th><th class="num">CPU</th><th class="num">RAM</th><th class="num">24h done</th><th>State</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">curio-01</td><td class="sm">ProveTask, CommP ×2, SaveCache</td><td class="num">34%</td><td class="num">21 / 64 GiB</td><td class="num">1,284</td><td><span class="pill ok">HEALTHY</span></td></tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= SERVICE SETUP ================= -->
+    <section class="page" id="pg-setup">
+      <div class="banner warn">
+        <span class="dot"></span>
+        <div><b>Setup 6 of 8 complete.</b> <span>Your service works, but clients can't reach it by domain yet — finish the two steps below.</span></div>
+      </div>
+
+      <div class="grid cols-3">
+        <div class="card span-2">
+          <h3>Getting started <span class="hint">auto-detected from live state</span></h3>
+          <div class="wiz" style="margin-top:6px">
+            <div class="step"><span class="ic done">✓</span><div><b>Chain connection</b><p>Connected to lotus RPC · head epoch 6,143,120 · 0 s behind.</p></div></div>
+            <div class="step"><span class="ic done">✓</span><div><b>PDP wallet attached</b><p>eth key 0xd3…9A4f imported with role <code class="k">pdp</code>.</p></div></div>
+            <div class="step"><span class="ic done">✓</span><div><b>Wallet funded</b><p>41.2 FIL for gas. Low-balance alert set at 10 FIL.</p></div></div>
+            <div class="step"><span class="ic done">✓</span><div><b>Storage attached</b><p>3 paths · 43.6 TiB usable · all healthy.</p></div></div>
+            <div class="step"><span class="ic done">✓</span><div><b>PDP flow verified</b><p>Self-test dataset created, proven and cleaned up on 2026-06-28.</p></div>
+              <span class="st-act"><button class="btn sm ghost">Re-run test</button></span></div>
+            <div class="step"><span class="ic done">✓</span><div><b>Registered on FOC</b><p>ServiceProviderRegistry provider #14 · offering published.</p></div></div>
+            <div class="step"><span class="ic now">7</span><div><b>Domain configured</b><p>Set your public domain so clients and the dealbot can reach <code class="k">/pdp</code> and <code class="k">/piece</code>. Currently only the IP responds.</p></div>
+              <span class="st-act"><button class="btn sm pri">Set domain…</button></span></div>
+            <div class="step"><span class="ic todo">8</span><div><b>Reachability verified</b><p>We'll probe https://pdpsp.example.com/pdp/ping from outside. If you're behind NAT, a Cloudflare tunnel works well.</p></div>
+              <span class="st-act"><button class="btn sm" disabled style="opacity:.5">Verify</button></span></div>
+          </div>
+        </div>
+
+        <div class="grid" style="align-content:start">
+          <div class="card">
+            <h3>Service endpoints</h3>
+            <div class="kv" style="margin-top:10px; grid-template-columns:1fr">
+              <div><label>Public HTTP</label><b>0.0.0.0:12310</b></div>
+              <div><label>TLS</label><b>delegated to reverse proxy <span class="mut">(DelegateTLS)</span></b></div>
+              <div><label>Domain</label><b style="color:var(--warn)">not set</b></div>
+              <div><label>Retrieval</label><b>/piece · enabled</b></div>
+              <div><label>IPNI announce</label><b>enabled · cid.contact</b></div>
+            </div>
+            <div class="sm mut" style="margin-top:10px; line-height:1.6">
+              Reverse-proxy checklist: forward <code class="k">Host</code>, <code class="k">X-Forwarded-Proto</code>
+              and the real client IP via <code class="k">X-Forwarded-For</code> / <code class="k">X-Real-IP</code>;
+              disable request buffering (streaming uploads), allow large bodies
+              (<code class="k">client_max_body_size 0</code>), long read timeouts, WebSocket upgrade for the UI.
+            </div>
+          </div>
+          <div class="card">
+            <h3>Products</h3>
+            <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px" class="sm">
+              <div style="display:flex; justify-content:space-between"><span>PDP v0 (hot storage)</span><span class="pill ok">ON</span></div>
+              <div style="display:flex; justify-content:space-between"><span>DDO / PoRep market</span><span class="pill mut">OFF</span></div>
+              <div style="display:flex; justify-content:space-between"><span>HTTP retrieval</span><span class="pill ok">ON</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    </div><!-- /content -->
+  </div>
+</div>
+
+<!-- ============ DATASET DRAWER ============ -->
+<div class="scrim" id="scrim" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="dhead">
+    <h2 id="d-ttl">Dataset #31</h2>
+    <span class="pill ok" id="d-pill">ACTIVE</span>
+    <button class="x" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="dbody" id="d-body"></div>
+</aside>
+
+<script>
+/* ============================================================
+   FAKE DATA — everything below is invented for the mock.
+   ============================================================ */
+const NOW_EPOCH = 6143120;
+const fmtEp = e => e.toLocaleString('en-US');
+const epIn = e => { const m = (e - NOW_EPOCH) * 0.5; return m < 60 ? `${Math.round(m)} m` : `${Math.floor(m/60)} h ${Math.round(m%60)} m`; };
+
+const DATASETS = [
+  {id:31, client:'0x91cE…77E3', pieces:212, size:'3.1 TiB', state:'window-soon', nextCh:6143388, deadline:6143448, faults:0, rail:812},
+  {id:29, client:'0x91cE…77E3', pieces:164, size:'2.4 TiB', state:'proven',      nextCh:6145560, deadline:6145620, faults:0, rail:812},
+  {id:28, client:'0x44Ab…09c2', pieces:96,  size:'1.9 TiB', state:'proven',      nextCh:6145104, deadline:6145164, faults:0, rail:799},
+  {id:27, client:'0x44Ab…09c2', pieces:301, size:'4.6 TiB', state:'proven',      nextCh:6143700, deadline:6143760, faults:0, rail:799},
+  {id:24, client:'0xB00f…5511', pieces:57,  size:'0.8 TiB', state:'proven',      nextCh:6143820, deadline:6143880, faults:0, rail:764},
+  {id:21, client:'0x7Dd1…c0dE', pieces:410, size:'6.2 TiB', state:'proven',      nextCh:6145900, deadline:6145960, faults:0, rail:731},
+  {id:17, client:'0x7Dd1…c0dE', pieces:188, size:'2.7 TiB', state:'proven',      nextCh:6144980, deadline:6145040, faults:2, rail:731},
+  {id:12, client:'0x30fA…9911', pieces:74,  size:'1.1 TiB', state:'proven',      nextCh:6145350, deadline:6145410, faults:0, rail:702},
+  {id:9,  client:'0x30fA…9911', pieces:145, size:'1.8 TiB', state:'terminating', nextCh:null,    deadline:null,    faults:0, rail:702},
+];
+const RAILS = [
+  {id:812, payer:'0x91cE…77E3', ds:'#31 #29', rate:14.20, settled:96.44, unsettled:6.10, funded:'+42 d', last:'6 m ago',  state:'ACTIVE'},
+  {id:799, payer:'0x44Ab…09c2', ds:'#28 #27', rate:16.10, settled:71.02, unsettled:5.31, funded:'+9 d',  last:'6 m ago',  state:'ACTIVE', warn:true},
+  {id:764, payer:'0xB00f…5511', ds:'#24',     rate:2.05,  settled:18.40, unsettled:0.71, funded:'+61 d', last:'12 h ago', state:'ACTIVE'},
+  {id:731, payer:'0x7Dd1…c0dE', ds:'#21 #17', rate:22.10, settled:104.9, unsettled:2.80, funded:'+35 d', last:'6 m ago',  state:'ACTIVE'},
+  {id:702, payer:'0x30fA…9911', ds:'#12 #9',  rate:7.20,  settled:44.60, unsettled:0.00, funded:'—',     last:'2 d ago',  state:'TERMINATED'},
+];
+const WEEKS = ['Apr 13','Apr 20','Apr 27','May 4','May 11','May 18','May 25','Jun 1','Jun 8','Jun 15','Jun 22','Jun 29'];
+const PROOFS = [98,104,110,112,109,118,121,119,124,122,126,125];
+const FAULTS = [0,1,0,0,2,0,0,0,1,0,0,0];
+const EARN30 = [1.6,1.7,1.8,1.7,1.9,2.0,1.9,1.8,2.1,2.0,1.9,2.1,2.2,2.0,1.9,2.1,2.3,2.2,2.1,2.0,2.2,2.1,2.3,2.4,2.2,2.1,2.3,2.2,2.4,2.3];
+const GAS30  = [.028,.027,.030,.029,.026,.031,.028,.027,.029,.030,.026,.028,.031,.029,.027,.028,.030,.029,.028,.027,.031,.028,.029,.026,.028,.030,.027,.029,.028,.030];
+const LAT_P50 = [140,138,145,132,139,141,136];
+const LAT_P95 = [420,398,455,410,392,441,405];
+const PATHS = [
+  {name:'/data/pdp-a', type:'store',  used:14.2, cap:16.0, pieces:812, ok:true},
+  {name:'/data/pdp-b', type:'store',  used:9.1,  cap:16.0, pieces:604, ok:true},
+  {name:'/fast/stash', type:'stash',  used:0.6,  cap:2.0,  pieces:31,  ok:true},
+];
+const FUNNEL = [
+  {label:'uploaded / pulled', n:1204, bad:0}, {label:'bytes parked', n:1202, bad:0}, {label:'commP verified', n:1198, bad:2},
+  {label:'addPieces tx', n:1176, bad:0}, {label:'saveCache built', n:1171, bad:0}, {label:'IPNI indexed', n:1168, bad:1},
+];
+
+/* ============================================================
+   tiny SVG chart helpers (no deps)
+   ============================================================ */
+const tip = document.getElementById('tip');
+function showTip(evt, html){ tip.innerHTML = html; tip.style.display='block';
+  const x = Math.min(evt.clientX+14, innerWidth-190), y = Math.max(evt.clientY-40, 8);
+  tip.style.left=x+'px'; tip.style.top=y+'px'; }
+function hideTip(){ tip.style.display='none'; }
+
+function groupedBars(el, labels, sA, sB, cA, cB, nameA, nameB, h=170){
+  const w = el.clientWidth || 520, pad={l:34,r:6,t:8,b:20};
+  const max = Math.max(...sA, ...sB, 1) * 1.15;
+  const iw = (w-pad.l-pad.r)/labels.length;
+  let s = `<svg width="${w}" height="${h}" style="display:block">`;
+  for(let g=0; g<=3; g++){ const y = pad.t + (h-pad.t-pad.b)*g/3;
+    s += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}" stroke="#232c37" stroke-width="1"/>`;
+    s += `<text x="${pad.l-6}" y="${y+3}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="end">${Math.round(max*(3-g)/3)}</text>`; }
+  labels.forEach((lb,i)=>{
+    const x0 = pad.l + iw*i, bw = Math.min((iw-8)/2, 14);
+    const hA = (h-pad.t-pad.b)*sA[i]/max, hB = (h-pad.t-pad.b)*sB[i]/max;
+    s += `<rect class="bar" data-i="${i}" x="${x0+iw/2-bw-1}" y="${h-pad.b-hA}" width="${bw}" height="${Math.max(hA,1)}" rx="3" fill="${cA}"/>`;
+    s += `<rect class="bar" data-i="${i}" x="${x0+iw/2+1}" y="${h-pad.b-Math.max(hB, sB[i]?4:1)}" width="${bw}" height="${Math.max(hB, sB[i]?4:1)}" rx="3" fill="${sB[i]?cB:'#232c37'}"/>`;
+    if(i%3===0) s += `<text x="${x0+iw/2}" y="${h-5}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="middle">${lb}</text>`;
+  });
+  s += `</svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll('.bar').forEach(r=>{
+    const i = +r.dataset.i;
+    r.addEventListener('mousemove', e=>showTip(e, `<div class="t">week of ${labels[i]}</div><div class="r"><i style="background:${cA}"></i>${nameA}: <b>${sA[i]}</b></div><div class="r"><i style="background:${cB}"></i>${nameB}: <b>${sB[i]}</b></div>`));
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+
+function barsPlusLine(el, bars, line, cBar, cLine, h=170){
+  const w = el.clientWidth || 520, pad={l:34,r:6,t:8,b:18};
+  const max = Math.max(...bars)*1.2, maxL = Math.max(...line)*1.25;
+  const iw = (w-pad.l-pad.r)/bars.length;
+  let s = `<svg width="${w}" height="${h}" style="display:block">`;
+  for(let g=0; g<=3; g++){ const y = pad.t + (h-pad.t-pad.b)*g/3;
+    s += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}" stroke="#232c37"/>`;
+    s += `<text x="${pad.l-6}" y="${y+3}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="end">${(max*(3-g)/3).toFixed(1)}</text>`; }
+  bars.forEach((v,i)=>{
+    const bh = (h-pad.t-pad.b)*v/max, x = pad.l+iw*i+1.5, bw = Math.max(iw-3,2);
+    s += `<rect class="bar" data-i="${i}" x="${x}" y="${h-pad.b-bh}" width="${bw}" height="${bh}" rx="2.5" fill="${cBar}"/>`;
+  });
+  let pts = line.map((v,i)=>`${pad.l+iw*i+iw/2},${h-pad.b-(h-pad.t-pad.b)*v/maxL}`).join(' ');
+  s += `<polyline points="${pts}" fill="none" stroke="${cLine}" stroke-width="2" stroke-linejoin="round"/>`;
+  s += `<text x="${pad.l}" y="${h-4}" fill="#62707e" font-size="9" font-family="JetBrains Mono">30 d ago</text>`;
+  s += `<text x="${w-pad.r}" y="${h-4}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="end">today</text>`;
+  s += `</svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll('.bar').forEach(r=>{
+    const i = +r.dataset.i;
+    r.addEventListener('mousemove', e=>showTip(e, `<div class="t">day −${bars.length-1-i}</div><div class="r"><i style="background:${cBar}"></i>settled: <b>${bars[i].toFixed(2)} USDFC</b></div><div class="r"><i style="background:${cLine}"></i>gas: <b>${line[i].toFixed(3)} FIL</b></div>`));
+    r.addEventListener('mouseleave', hideTip);
+  });
+}
+
+function lines(el, labels, series, colors, names, unit, h=150){
+  const w = el.clientWidth || 320, pad={l:34,r:8,t:10,b:18};
+  const max = Math.max(...series.flat())*1.2;
+  const iw = (w-pad.l-pad.r)/(labels.length-1);
+  let s = `<svg width="${w}" height="${h}" style="display:block">`;
+  for(let g=0; g<=2; g++){ const y = pad.t + (h-pad.t-pad.b)*g/2;
+    s += `<line x1="${pad.l}" x2="${w-pad.r}" y1="${y}" y2="${y}" stroke="#232c37"/>`;
+    s += `<text x="${pad.l-6}" y="${y+3}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="end">${Math.round(max*(2-g)/2)}</text>`; }
+  series.forEach((ser,k)=>{
+    const pts = ser.map((v,i)=>`${pad.l+iw*i},${h-pad.b-(h-pad.t-pad.b)*v/max}`).join(' ');
+    s += `<polyline points="${pts}" fill="none" stroke="${colors[k]}" stroke-width="2" stroke-linejoin="round"/>`;
+    ser.forEach((v,i)=>{ s += `<circle class="pt" data-i="${i}" cx="${pad.l+iw*i}" cy="${h-pad.b-(h-pad.t-pad.b)*v/max}" r="7" fill="transparent"/>`; });
+  });
+  labels.forEach((lb,i)=>{ if(i%2===0) s += `<text x="${pad.l+iw*i}" y="${h-4}" fill="#62707e" font-size="9" font-family="JetBrains Mono" text-anchor="middle">${lb}</text>`; });
+  s += `</svg>`;
+  el.innerHTML = s;
+  el.querySelectorAll('.pt').forEach(c=>{
+    const i = +c.dataset.i;
+    c.addEventListener('mousemove', e=>showTip(e, `<div class="t">${labels[i]}</div>` + series.map((ser,k)=>`<div class="r"><i style="background:${colors[k]}"></i>${names[k]}: <b>${ser[i]} ${unit}</b></div>`).join('')));
+    c.addEventListener('mouseleave', hideTip);
+  });
+}
+
+/* ============================================================
+   page renderers
+   ============================================================ */
+function renderDashCharts(){
+  groupedBars(document.getElementById('ch-proving'), WEEKS, PROOFS, FAULTS, 'var(--good)', 'var(--bad)', 'proofs', 'faults');
+  barsPlusLine(document.getElementById('ch-earn'), EARN30, GAS30.map(g=>g*50), 'var(--series-2)', 'var(--series-3)');
+  lines(document.getElementById('ch-lat'), ['Jun 25','26','27','28','29','30','Jul 1'], [LAT_P50, LAT_P95], ['var(--series-1)','var(--series-4)'], ['p50','p95'], 'ms');
+}
+
+function provePill(st){
+  if(st==='proven') return '<span class="pill ok">PROVEN</span>';
+  if(st==='window-soon') return '<span class="pill warn">WINDOW 2 H</span>';
+  if(st==='in-window') return '<span class="pill warn">IN WINDOW</span>';
+  if(st==='terminating') return '<span class="pill mut">TERMINATING</span>';
+  return '<span class="pill bad">FAULTED</span>';
+}
+function renderDatasets(){
+  const tb = document.querySelector('#ds-table tbody');
+  tb.innerHTML = DATASETS.map(d=>`
+    <tr class="click" onclick="openDrawer(${d.id})">
+      <td class="mono" style="color:var(--accent)">#${d.id}</td>
+      <td><span class="addr">${d.client}</span></td>
+      <td class="num">${d.pieces}</td>
+      <td class="num">${d.size}</td>
+      <td>${provePill(d.state)}</td>
+      <td class="num mut">${d.nextCh?fmtEp(d.nextCh):'—'}</td>
+      <td class="num">${d.deadline?epIn(d.deadline):'—'}</td>
+      <td class="num" style="color:${d.faults?'var(--bad)':'var(--ink-3)'}">${d.faults}</td>
+      <td class="mono sm"><a href="#/payments">#${d.rail}</a></td>
+    </tr>`).join('');
+  // challenge window strip
+  const st = document.getElementById('strip');
+  const span = 2880; // 24h of epochs
+  let html = `<div class="axis"></div><div class="now" style="left:8%"></div><div class="nowlab" style="left:8%">now</div>`;
+  [0,6,12,18,24].forEach(hh=>{ html += `<div class="tick" style="left:${8+hh/24*88}%">${hh===0?'':'+'+hh+'h'}</div>`; });
+  DATASETS.filter(d=>d.deadline).forEach(d=>{
+    const from = (d.nextCh-NOW_EPOCH)/span, to = (d.deadline-NOW_EPOCH)/span;
+    if(from>1) return;
+    const l = 8 + Math.max(from,0)*88, w = Math.max((to-Math.max(from,0))*88, 1.4);
+    const cls = d.state==='window-soon' ? 'open' : 'next';
+    html += `<div class="win ${cls}" data-ds="${d.id}" style="left:${l}%; width:${w}%" title="dataset #${d.id}"></div>`;
+  });
+  st.innerHTML = html;
+  st.querySelectorAll('.win').forEach(w=>{
+    const d = DATASETS.find(x=>x.id==w.dataset.ds);
+    w.addEventListener('mousemove', e=>showTip(e, `<div class="t">dataset #${d.id}</div><div class="r">window opens: <b>${epIn(d.nextCh)}</b></div><div class="r">deadline: <b>${epIn(d.deadline)}</b></div>`));
+    w.addEventListener('mouseleave', hideTip);
+    w.style.cursor='pointer'; w.addEventListener('click', ()=>openDrawer(d.id));
+  });
+}
+
+function renderRails(){
+  const tb = document.querySelector('#rail-table tbody');
+  tb.innerHTML = RAILS.map(r=>`
+    <tr class="click">
+      <td class="mono" style="color:var(--accent)">#${r.id}</td>
+      <td><span class="addr">${r.payer}</span></td>
+      <td class="mono sm mut">${r.ds}</td>
+      <td class="num">${r.rate.toFixed(2)}</td>
+      <td class="num">${r.settled.toFixed(2)}</td>
+      <td class="num" style="color:${r.unsettled>0?'var(--series-3)':'var(--ink-3)'}">${r.unsettled.toFixed(2)}</td>
+      <td class="num" style="color:${r.warn?'var(--warn)':'inherit'}">${r.funded}</td>
+      <td class="sm mut">${r.last}</td>
+      <td>${r.state==='ACTIVE'?'<span class="pill ok">ACTIVE</span>':'<span class="pill mut">TERMINATED</span>'}</td>
+    </tr>`).join('');
+}
+
+function renderStorage(){
+  document.getElementById('paths').innerHTML = PATHS.map(p=>{
+    const pct = Math.round(p.used/p.cap*100);
+    return `<div class="card">
+      <h3>${p.name} <span class="hint">${p.type}</span></h3>
+      <div style="display:flex; justify-content:space-between; margin-top:12px; font-size:12px">
+        <span class="mut">${p.used.toFixed(1)} / ${p.cap.toFixed(1)} TiB</span><b class="mono">${pct}%</b></div>
+      <div class="meter ${pct>85?'hot':''}" style="margin-top:6px"><i style="width:${pct}%"></i></div>
+      <div class="sm mut" style="margin-top:8px">${p.pieces} pieces · <span style="color:var(--good)">healthy</span> · last scan 3 h ago</div>
+    </div>`;
+  }).join('');
+  const max = FUNNEL[0].n;
+  document.getElementById('funnel').innerHTML = FUNNEL.map(f=>`
+    <div style="display:grid; grid-template-columns:130px 1fr 56px 76px; gap:10px; align-items:center; margin-bottom:9px">
+      <span class="sm mut mono">${f.label}</span>
+      <div class="meter"><i style="width:${Math.round(f.n/max*100)}%"></i></div>
+      <span class="num mono sm" style="text-align:right">${f.n.toLocaleString()}</span>
+      <span>${f.bad?`<span class="pill bad">${f.bad} failed</span>`:''}</span>
+    </div>`).join('');
+}
+
+/* ============================================================
+   dataset drawer
+   ============================================================ */
+function openDrawer(id){
+  const d = DATASETS.find(x=>x.id===id); if(!d) return;
+  document.getElementById('d-ttl').textContent = `Dataset #${d.id}`;
+  const pill = document.getElementById('d-pill');
+  pill.className = 'pill ' + (d.state==='terminating'?'mut':'ok');
+  pill.textContent = d.state==='terminating'?'TERMINATING':'ACTIVE';
+  document.getElementById('d-body').innerHTML = `
+    <div class="kv">
+      <div><label>Client (payer)</label><b class="addr">${d.client}</b></div>
+      <div><label>Payment rail</label><b><a href="#/payments">#${d.rail}</a> · 2.5 USDFC/TiB/mo</b></div>
+      <div><label>Pieces</label><b>${d.pieces}</b></div>
+      <div><label>Data size</label><b>${d.size}</b></div>
+      <div><label>Created</label><b>2026-05-11 · epoch 5,996,410</b></div>
+      <div><label>On-chain set ID</label><b>PDPVerifier #${d.id}</b></div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <h3>Proving</h3>
+      <div class="kv" style="margin-top:10px">
+        <div><label>Status</label><b>${d.state==='proven'?'proven this period ✓':(d.deadline?'window opens '+epIn(d.nextCh):'—')}</b></div>
+        <div><label>Last proven</label><b>epoch ${fmtEp(NOW_EPOCH-2440)} · 20 h ago</b></div>
+        <div><label>Next challenge</label><b>${d.nextCh?fmtEp(d.nextCh):'—'}</b></div>
+        <div><label>Deadline</label><b>${d.deadline?fmtEp(d.deadline)+' · '+epIn(d.deadline):'—'}</b></div>
+        <div><label>Proving period</label><b>2880 epochs · 24 h</b></div>
+        <div><label>Challenge window</label><b>60 epochs · 30 m</b></div>
+        <div><label>Faulted periods · all time</label><b style="color:${d.faults?'var(--bad)':'var(--good)'}">${d.faults}</b></div>
+        <div><label>Proof gas · 30 d</label><b>0.058 FIL</b></div>
+      </div>
+    </div>
+    <div class="card" style="padding:14px 16px">
+      <h3>Pieces <span class="hint">${d.pieces} total · showing 4</span></h3>
+      <table style="margin-top:8px">
+        <thead><tr><th>Piece CID</th><th class="num">Size</th><th>Added</th><th>State</th></tr></thead>
+        <tbody>
+          <tr><td class="mono sm">bafk…q2ci</td><td class="num">32 GiB</td><td class="sm mut">Jun 29</td><td><span class="pill ok">PROVEN</span></td></tr>
+          <tr><td class="mono sm">bafk…8x1a</td><td class="num">32 GiB</td><td class="sm mut">Jun 29</td><td><span class="pill ok">PROVEN</span></td></tr>
+          <tr><td class="mono sm">bafk…m44e</td><td class="num">16 GiB</td><td class="sm mut">Jun 27</td><td><span class="pill ok">PROVEN</span></td></tr>
+          <tr><td class="mono sm">bafk…77zq</td><td class="num">8 GiB</td><td class="sm mut">Jun 27</td><td><span class="pill acc">ADDING</span></td></tr>
+        </tbody>
+      </table>
+      <div style="margin-top:10px"><button class="btn sm ghost">Browse all pieces →</button></div>
+    </div>
+    <div style="display:flex; gap:8px">
+      <button class="btn sm">Prove now</button>
+      <button class="btn sm ghost">View on explorer ↗</button>
+      <button class="btn sm ghost danger" style="margin-left:auto">Terminate dataset…</button>
+    </div>`;
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('scrim').classList.add('open');
+}
+function closeDrawer(){
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('scrim').classList.remove('open');
+}
+
+/* ============================================================
+   router
+   ============================================================ */
+const TITLES = {
+  dashboard:['Dashboard','Provider #14 · pdpsp.example.com'],
+  datasets:['Datasets & Proving','18 active · 24.6 TiB under proof'],
+  payments:['Payments & FOC participation','5 active rails · registry: provider #14'],
+  storage:['Storage & Tasks','3 paths · 1 node · 3 failed tasks'],
+  setup:['Service Setup','6 of 8 steps complete'],
+};
+let rendered = {};
+function route(){
+  const p = (location.hash.replace('#/','') || 'dashboard').split('/')[0];
+  const page = TITLES[p] ? p : 'dashboard';
+  document.querySelectorAll('.page').forEach(s=>s.classList.toggle('on', s.id==='pg-'+page));
+  document.querySelectorAll('.nav a[data-page]').forEach(a=>a.classList.toggle('on', a.dataset.page===page));
+  document.getElementById('ttl').textContent = TITLES[page][0];
+  document.getElementById('sub').textContent = TITLES[page][1];
+  closeDrawer();
+  if(!rendered[page]){
+    if(page==='dashboard') renderDashCharts();
+    if(page==='datasets') renderDatasets();
+    if(page==='payments') renderRails();
+    if(page==='storage') renderStorage();
+    rendered[page]=true;
+  }
+}
+addEventListener('hashchange', route);
+addEventListener('resize', ()=>{ rendered={}; route(); });
+route();
+</script>
+</body>
+</html>
