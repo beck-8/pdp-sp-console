@@ -343,9 +343,11 @@ code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px;
           </div>
         </div>
         <div class="card">
-          <h3>/piece serve latency <span class="hint">measured in Curio · 7 d</span></h3>
+          <h3>Latency <span class="hint">own measurements · p50 · 7 d</span></h3>
           <div class="chartbox" id="ch-lat"></div>
-          <div class="legend"><span><em class="line" style="background:var(--series-1)"></em>p50 · request→last byte</span><span><em class="line" style="background:var(--series-4)"></em>p95</span></div>
+          <div class="legend" style="margin-top:6px"><span><em class="line" style="background:var(--series-1)"></em>/piece serve</span><span><em class="line" style="background:var(--series-2)"></em>/ipfs serve</span></div>
+          <div class="chartbox" id="ch-addp" style="margin-top:12px"></div>
+          <div class="legend" style="margin-top:6px"><span><em class="line" style="background:var(--series-3)"></em>addPieces confirm (s)</span></div>
         </div>
       </div>
     </section>
@@ -602,8 +604,9 @@ const PROOFS = [98,104,110,112,109,118,121,119,124,122,126,125];
 const FAULTS = [0,1,0,0,2,0,0,0,1,0,0,0];
 const EARN30 = [1.6,1.7,1.8,1.7,1.9,2.0,1.9,1.8,2.1,2.0,1.9,2.1,2.2,2.0,1.9,2.1,2.3,2.2,2.1,2.0,2.2,2.1,2.3,2.4,2.2,2.1,2.3,2.2,2.4,2.3];
 const GAS30  = [.028,.027,.030,.029,.026,.031,.028,.027,.029,.030,.026,.028,.031,.029,.027,.028,.030,.029,.028,.027,.031,.028,.029,.026,.028,.030,.027,.029,.028,.030];
-const LAT_P50 = [140,138,145,132,139,141,136];
-const LAT_P95 = [420,398,455,410,392,441,405];
+const LAT_PIECE = [140,138,145,132,139,141,136];
+const LAT_IPFS  = [186,192,178,201,188,183,190];
+const LAT_ADDP  = [48,52,45,61,49,47,54];
 const PATHS = [
   {name:'/data/pdp-a', type:'store',  used:14.2, cap:16.0, pieces:812, ok:true},
   {name:'/data/pdp-b', type:'store',  used:9.1,  cap:16.0, pieces:604, ok:true},
@@ -701,7 +704,9 @@ function lines(el, labels, series, colors, names, unit, h=150){
 function renderDashCharts(){
   groupedBars(document.getElementById('ch-proving'), WEEKS, PROOFS, FAULTS, 'var(--good)', 'var(--bad)', 'proofs', 'faults');
   barsPlusLine(document.getElementById('ch-earn'), EARN30, GAS30.map(g=>g*50), 'var(--series-2)', 'var(--series-3)');
-  lines(document.getElementById('ch-lat'), ['Jun 25','26','27','28','29','30','Jul 1'], [LAT_P50, LAT_P95], ['var(--series-1)','var(--series-4)'], ['p50','p95'], 'ms');
+  const days7 = ['Jun 25','26','27','28','29','30','Jul 1'];
+  lines(document.getElementById('ch-lat'), days7, [LAT_PIECE, LAT_IPFS], ['var(--series-1)','var(--series-2)'], ['/piece','/ipfs'], 'ms', 108);
+  lines(document.getElementById('ch-addp'), days7, [LAT_ADDP], ['var(--series-3)'], ['addPieces confirm'], 's', 88);
 }
 
 function provePill(st){

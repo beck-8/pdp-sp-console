@@ -90,7 +90,7 @@ Legend: ✅ = RPC/data exists today · 🔶 = derivable from existing tables, ne
 | KPI: gas 30d | receipts of proof + settlement txs we sent (`message_waits_eth`) | 🔶 |
 | Proofs vs faults weekly chart | `pdp_proving_history` | 🔴 |
 | Earnings vs gas daily chart | same sources as KPIs | 🔴 |
-| Serve latency p50/p95 | **Own data only:** `/piece` (and `/ipfs`) request→last-byte histograms in our handlers, plus addPieces tx confirmation time (task start → receipt). Client-perceived network latency stays external (dealbot), out of scope. | 🔴 (phase 2) |
+| Latency (three durations) | **Own data only:** `/piece` and `/ipfs` request→last-byte histograms in our handlers, plus addPieces tx confirmation time (task start → receipt). Shown as two mini-charts (serve in ms; addPieces in s — different scales, never one axis). Client-perceived network latency stays external (dealbot), out of scope. | 🔴 (phase 2) |
 | Needs-attention list | alerts framework + upcoming `prove_at_epoch` + failed tasks + wallet runway | 🔶 |
 
 ## A§2 Datasets & Proving
