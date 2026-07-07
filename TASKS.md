@@ -33,7 +33,7 @@ Depends on M0; independent of M1/M2.
 ## M4 — Business dashboard
 The health banner, the open-issues list, and the income / gas / proving KPIs and charts.
 
-The open-issues list reads the alert lifecycle merged upstream on 2026-07-03: active conditions from `alert_conditions`, unresolved one-shot events from `alert_history` (`kind='event'`), with the existing mute mechanism. It shows final failures and active conditions only — attempts that recover on retry never appear (they live in M6's task table instead). Needs one read webrpc over those tables; the banner collapses to "All clear" when the list is empty.
+The open-issues list reads the alert lifecycle from curio PR #1332 (open at time of writing): active conditions from `alert_conditions`, recent one-shot events from `alert_history` (`kind='event'`), with the existing mute mechanism. It shows final failures and active conditions only — attempts that recover on retry never appear (they live in M6's task table instead). Two things to mind: this slice depends on that PR merging, and the PR's task-failure query still counts every failed attempt, so the final-failure filter (retries exhausted — task row deleted from `harmony_task`) needs to land there or in our read RPC. The banner collapses to "All clear" when the list is empty.
 
 KPIs and charts need M2 (proving numbers) and M3 (settlement reads). Probably wants a small daily rollup rather than scanning tx receipts on every page load — the engineer taking this decides.
 
