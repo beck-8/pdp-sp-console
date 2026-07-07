@@ -274,7 +274,7 @@ code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px;
         Payments &amp; FOC</a>
       <a href="#/storage" data-page="storage">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="2" width="13" height="5" rx="1"/><rect x="1.5" y="9" width="13" height="5" rx="1"/><circle cx="4.2" cy="4.5" r=".9" fill="currentColor" stroke="none"/><circle cx="4.2" cy="11.5" r=".9" fill="currentColor" stroke="none"/></svg>
-        Storage &amp; Tasks <span class="cnt">3</span></a>
+        Storage &amp; Tasks <span class="cnt">1</span></a>
     </nav>
 
     <div class="ngroup">Configure</div>
@@ -304,9 +304,9 @@ code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px;
 
     <!-- ================= DASHBOARD ================= -->
     <section class="page" id="pg-dashboard">
-      <div class="banner" id="okbanner">
+      <div class="banner warn" id="okbanner">
         <span class="dot"></span>
-        <div><b>All systems operational.</b> <span>18 datasets proven this period · 0 faults in 7 days · next challenge window in 2 h 14 m.</span></div>
+        <div><b>3 open issues.</b> <span>18 datasets proven this period · 0 faults in 7 days · when the list is empty this banner reads "All clear".</span></div>
         <span class="act mut sm mono">updated 12 s ago</span>
       </div>
 
@@ -332,15 +332,16 @@ code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px;
 
       <div class="grid cols-3" style="margin-top:14px">
         <div class="card span-2">
-          <h3>Needs attention <span class="hint">3 items</span></h3>
+          <h3>Open issues <span class="hint">active conditions + unresolved events · final failures only</span></h3>
           <div class="att" style="margin-top:8px">
             <div class="row"><span class="sev" style="background:var(--warn)"></span>
-              <div><b>3 challenge windows open within 6 h (#31 first, in 2 h 14 m)</b><p>prove_at_epoch 6,143,388 · window 60 epochs · ProveTasks scheduled per dataset</p></div><span class="when">epoch 6,143,388</span></div>
+              <div><b>3 challenge windows open within 6 h (#31 first, in 2 h 14 m)</b><p><span class="mono">pdp · proving</span> · condition · active 41 m · seen ×3 · <a href="#/datasets">datasets →</a></p></div><span class="when"><button class="btn sm">Mute</button></span></div>
             <div class="row"><span class="sev" style="background:var(--warn)"></span>
-              <div><b>PDP wallet gas runway ~19 days</b><p>0xd3…9A4f holds 41.2 FIL · burning ~2.1 FIL/mo at current proof + settlement cadence</p></div><span class="when">balance watch</span></div>
+              <div><b>PDP wallet gas runway ~19 days</b><p><span class="mono">wallet · balance</span> · condition · active 3 d · seen ×72 · 0xd3…9A4f holds 41.2 FIL</p></div><span class="when"><button class="btn sm">Mute</button></span></div>
             <div class="row"><span class="sev" style="background:var(--bad)"></span>
-              <div><b>2 pipeline tasks failed: CommP on node curio-01</b><p>piece bafk…q2ci from client 0x91…77E3 · retried 1/5 · <a href="#/storage">restart from Storage &amp; Tasks →</a></p></div><span class="when">18 m ago</span></div>
+              <div><b>Task failed: CommP on curio-01, retries exhausted</b><p><span class="mono">harmony · task</span> · event · 18 m ago · piece bafk…q2ci · <a href="#/storage">restart from Storage &amp; Tasks →</a></p></div><span class="when"><button class="btn sm">Mute</button></span></div>
           </div>
+          <div class="sm mut" style="margin-top:10px">Attempts that later succeed on retry never appear here — see <a href="#/storage">Storage &amp; Tasks</a> for recovered attempts · resolved issues move to history</div>
         </div>
         <div class="card">
           <h3>Latency <span class="hint">own measurements · p50 · 7 d</span></h3>
@@ -477,17 +478,17 @@ code.k{background:var(--inset); border:1px solid var(--line); border-radius:4px;
           <div id="funnel" style="margin-top:14px"></div>
         </div>
         <div class="card">
-          <h3>Failed tasks <span class="hint">last 24 h</span></h3>
+          <h3>Task failures <span class="hint">last 24 h</span></h3>
           <div style="overflow-x:auto; margin-top:8px">
           <table>
-            <thead><tr><th>Task</th><th>Node</th><th class="num">Fails</th><th>Last error</th><th></th></tr></thead>
+            <thead><tr><th>Task</th><th>Node</th><th class="num">Failed</th><th class="num">Recovered</th><th>Last error</th><th></th></tr></thead>
             <tbody>
-              <tr><td class="mono">CommP</td><td class="mono sm">curio-01</td><td class="num" style="color:var(--bad)">2</td><td class="sm mut" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">read /dev/loop3: i/o timeout</td><td><button class="btn sm">Restart</button></td></tr>
-              <tr><td class="mono">IndexPiece</td><td class="mono sm">curio-01</td><td class="num" style="color:var(--bad)">1</td><td class="sm mut" style="max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">ipni: provider not ready</td><td><button class="btn sm">Restart</button></td></tr>
+              <tr><td class="mono">CommP</td><td class="mono sm">curio-01</td><td class="num" style="color:var(--bad)">1</td><td class="num mut">2</td><td class="sm mut" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">read /dev/loop3: i/o timeout</td><td><button class="btn sm">Restart</button></td></tr>
+              <tr><td class="mono">IndexPiece</td><td class="mono sm">curio-01</td><td class="num">0</td><td class="num mut">1</td><td class="sm mut" style="max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">ipni: provider not ready</td><td></td></tr>
             </tbody>
           </table>
           </div>
-          <div class="sm mut" style="margin-top:10px">All other task types healthy · 1,284 tasks completed in 24 h</div>
+          <div class="sm mut" style="margin-top:10px"><b style="color:var(--bad)">Failed</b> = retries exhausted, raises an alert · <b>Recovered</b> = attempt failed, retry succeeded — never alerts, listed to surface underlying issues · 1,284 tasks completed in 24 h</div>
         </div>
       </div>
 
@@ -613,8 +614,8 @@ const PATHS = [
   {name:'/fast/stash', type:'stash',  used:0.6,  cap:2.0,  pieces:31,  ok:true},
 ];
 const FUNNEL = [
-  {label:'uploaded / pulled', n:1204, bad:0}, {label:'bytes parked', n:1202, bad:0}, {label:'commP verified', n:1198, bad:2},
-  {label:'addPieces tx', n:1176, bad:0}, {label:'saveCache built', n:1171, bad:0}, {label:'IPNI indexed', n:1168, bad:1},
+  {label:'uploaded / pulled', n:1204, bad:0}, {label:'bytes parked', n:1202, bad:0}, {label:'commP verified', n:1198, bad:1},
+  {label:'addPieces tx', n:1176, bad:0}, {label:'saveCache built', n:1171, bad:0}, {label:'IPNI indexed', n:1168, bad:0},
 ];
 
 /* ============================================================
@@ -852,7 +853,7 @@ const TITLES = {
   dashboard:['Dashboard','Provider #14 · pdpsp.example.com'],
   datasets:['Datasets & Proving','18 active · 24.6 TiB under proof'],
   payments:['Payments & FOC participation','5 active rails · registry: provider #14'],
-  storage:['Storage & Tasks','3 paths · 1 node · 3 failed tasks'],
+  storage:['Storage & Tasks','3 paths · 1 node · 1 failed task · 3 recovered'],
   setup:['Service Setup','6 of 8 steps complete'],
 };
 let rendered = {};

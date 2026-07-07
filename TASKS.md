@@ -31,9 +31,11 @@ One action only in this milestone: **Settle now**, which kicks the existing `tas
 Depends on M0; independent of M1/M2.
 
 ## M4 — Business dashboard
-The health banner and the income / gas / proving KPIs and charts.
+The health banner, the open-issues list, and the income / gas / proving KPIs and charts.
 
-Needs M2 (proving numbers) and M3 (settlement reads). Probably wants a small daily rollup rather than scanning tx receipts on every page load — the engineer taking this decides.
+The open-issues list reads the alert lifecycle merged upstream on 2026-07-03: active conditions from `alert_conditions`, unresolved one-shot events from `alert_history` (`kind='event'`), with the existing mute mechanism. It shows final failures and active conditions only — attempts that recover on retry never appear (they live in M6's task table instead). Needs one read webrpc over those tables; the banner collapses to "All clear" when the list is empty.
+
+KPIs and charts need M2 (proving numbers) and M3 (settlement reads). Probably wants a small daily rollup rather than scanning tx receipts on every page load — the engineer taking this decides.
 
 ## M5 — Service Setup
 The auto-detected getting-started checklist plus endpoint/products cards.
@@ -43,7 +45,9 @@ Most checks read existing state: chain connection, `eth_keys role='pdp'`, storag
 Depends on M0.
 
 ## M6 — Storage & Tasks
-Paths, failed tasks, and node views re-composed in console style, plus the pdpv0 ingest funnel (`pdp_piece_uploads` / `pdp_piece_pulls` → `parked_pieces` → `pdp_piecerefs` → `pdp_data_set_piece_adds` → save-cache → IPNI), with per-stage failure counts.
+Paths, task failures, and node views re-composed in console style, plus the pdpv0 ingest funnel (`pdp_piece_uploads` / `pdp_piece_pulls` → `parked_pieces` → `pdp_piecerefs` → `pdp_data_set_piece_adds` → save-cache → IPNI), with per-stage failure counts.
+
+The task table splits **Failed** (retries exhausted — alerts) from **Recovered** (attempt failed, retry succeeded — no alert, but repeated recoveries point at an underlying issue). `harmony_task_history` already keeps one row per attempt with `task_id` and `result`, so this is a query change, not new collection.
 
 Depends on M0.
 

@@ -17,7 +17,7 @@ Inside Curio, a console with the Stripe-dashboard / Linear feel #1320 asks for: 
 
 | Page | Platform-PRD area | The question it answers |
 |---|---|---|
-| **Dashboard** | Business dashboard | "Is my business OK right now?" — health banner, income vs gas, proving success, needs-attention |
+| **Dashboard** | Business dashboard | "Is my business OK right now?" — health banner, income vs gas, proving success, open issues |
 | **Datasets & Proving** | + operator proving visibility | "Will I prove on time? What am I storing for whom?" — challenge-window timeline, deadline countdowns, faults, piece drill-down |
 | **Payments & FOC** | FOC participation | "Am I getting paid? Am I registered correctly?" — registry status, balances, rails, settlements, settle-now |
 | **Storage & Tasks** | Storage mgmt & monitoring | "Is the machine healthy?" — paths, pdpv0 ingest funnel, failed tasks + restart |
@@ -35,6 +35,7 @@ Cross-cutting: a health chip on every page ("PROVING ON SCHEDULE" / degraded), a
 6. **pdpv0 is the source of truth.** All queries target the pdpv0 tables (`pdp_data_sets`, `pdp_data_set_pieces`, `pdp_piece_uploads`, …). The mk20 path (`pdp_pipeline`) is a different product path current SPs don't use — union later if needed.
 7. **Vocabulary aligned with the platform PRD.** Same protocol→product mapping, mirrored to the supply side (below). Product words in the UI; raw rails/epochs one click deeper.
 8. **Ship in slices.** Every milestone is independently useful to a live SP; feedback between slices.
+9. **Alerts are loud, but only for real problems.** The dashboard's open-issues list shows final failures and active conditions only — a task attempt that later succeeds on retry never appears there. This is exactly the semantics of the alert lifecycle merged upstream on 2026-07-03 (`alert_conditions` for active conditions; `alert_history.kind = event|condition` for one-shots and resolved history; per-alert mutes) — the console reads it, it doesn't reinvent it. Recovered attempts stay visible one level down, on Storage & Tasks, for whoever wants to chase an underlying cause. (Decided 2026-07-07.)
 
 ## Vocabulary — protocol → SP product
 
@@ -91,7 +92,7 @@ Legend: ✅ = RPC/data exists today · 🔶 = derivable from existing tables, ne
 | Proofs vs faults weekly chart | `pdp_proving_history` | 🔴 |
 | Earnings vs gas daily chart | same sources as KPIs | 🔴 |
 | Latency (three durations) | **Own data only:** `/piece` and `/ipfs` request→last-byte histograms in our handlers, plus addPieces tx confirmation time (task start → receipt). Shown as two mini-charts (serve in ms; addPieces in s — different scales, never one axis). Client-perceived network latency stays external (dealbot), out of scope. | 🔴 (phase 2) |
-| Needs-attention list | alerts framework + upcoming `prove_at_epoch` + failed tasks + wallet runway | 🔶 |
+| Open-issues list | `alert_conditions` (active conditions: system/subsystem, message, `created_at`, `repeat_count`) + unresolved `alert_history` rows with `kind='event'`, plus the existing mute mechanism. Final failures and active conditions only — retried-and-recovered attempts are excluded by the alert lifecycle itself (core decision 9). Empty list ⇒ the banner reads "All clear". Rows deep-link to the page that owns the problem. | 🔶 read RPC over the alert-lifecycle tables |
 
 ## A§2 Datasets & Proving
 
@@ -120,6 +121,8 @@ Legend: ✅ = RPC/data exists today · 🔶 = derivable from existing tables, ne
 ## A§4 Storage & Tasks
 
 Storage paths, tasks, nodes are **rearrangement of existing components**: `StoragePathList`/`StoragePathsSummary`, `HarmonyTaskStats`/`ClusterMachines`, restart actions. ✅ with light re-skinning.
+
+The **task-failures table splits two outcomes** that today read as one number: **Failed** (retries exhausted — this is what raises an alert) vs **Recovered** (an attempt failed, a retry succeeded — never alerts, but listed here because repeated recoveries point at an underlying issue). Both are derivable from `harmony_task_history`, which keeps one row per attempt with `task_id` and `result`: recovered = a false row followed by a true row for the same task id; failed = last row false and the task gone from `harmony_task`. 🔶 one query change to the existing task-summary RPC.
 
 The **ingest pipeline funnel** is new and must be built from the **pdpv0 tables** (NOT `MK20PDPPipelines` — that reads the mk20 `pdp_pipeline`, a different product path unused by current pdpv0 SPs): uploaded/pulled (`pdp_piece_uploads` / `pdp_piece_pulls`) → bytes parked (`parked_pieces`) → commP verified (`pdp_piecerefs`) → addPieces tx confirmed (`pdp_data_set_piece_adds`) → saveCache built → IPNI indexed. Per-stage counts + failure badges (joined against `harmony_task`). 🔶 new `PDPv0Pipeline` RPC. Node view renders as a single compact row for the common single-node PDP deployment and expands to the cluster table only when >1 machine is registered.
 
