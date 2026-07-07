@@ -1,5 +1,7 @@
 # PRD — Curio PDP SP Console
 
+*Written from real needs operating a PDP SP; drafted and polished with Claude.*
+
 *Breakdown of filecoin-project/curio#1320, PDP-first slice. For team review.*
 *Companions: [interactive fake-data wireframe](https://beck-8.github.io/pdp-sp-console/mock/) (screenshots [here](https://github.com/beck-8/pdp-sp-console/tree/main/mock/screenshots)) · [TASKS.md](https://github.com/beck-8/pdp-sp-console/blob/main/TASKS.md) (the epic: M0–M6 issue breakdown) · [repo](https://github.com/beck-8/pdp-sp-console).*
 
