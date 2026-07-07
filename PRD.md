@@ -1,7 +1,7 @@
 # PRD — Curio PDP SP Console
 
 *Breakdown of filecoin-project/curio#1320, PDP-first slice. For team review.*
-*Companions: `mock/index.html` (interactive fake-data wireframe — open in any browser; screenshots in `mock/screenshots/`) · `TASKS.md` (the epic: M0–M6 issue breakdown).*
+*Companions: [interactive fake-data wireframe](https://beck-8.github.io/pdp-sp-console/mock/) (screenshots [here](https://github.com/beck-8/pdp-sp-console/tree/main/mock/screenshots)) · [TASKS.md](https://github.com/beck-8/pdp-sp-console/blob/main/TASKS.md) (the epic: M0–M6 issue breakdown) · [repo](https://github.com/beck-8/pdp-sp-console).*
 
 > 🗺️ **TL;DR** — We're building the **operations console for PDP storage providers, inside Curio itself** — not a general UI overhaul and not another external dashboard. One place where a live SP answers four questions: *Will I prove on time? Am I getting paid? Is the machine healthy? Is my service configured and reachable?* The first slice (proving & datasets) is derivable entirely from tables Curio already has — ship it first, layer income/wizard views on top.
 
@@ -64,7 +64,7 @@ Everything an SP sees in M1 is derivable from tables Curio already writes — no
 - **M4** business dashboard.
 - **M3** Payments & FOC and **M5** Setup wizard run in parallel; **M6** Storage & Tasks is filler.
 
-Milestone details and dependencies: `TASKS.md` (**EPIC: Curio PDP SP Console** — each milestone files as one issue; the engineer who takes it owns the finer breakdown).
+Milestone details and dependencies: [TASKS.md](https://github.com/beck-8/pdp-sp-console/blob/main/TASKS.md) (**EPIC: Curio PDP SP Console** — each milestone files as one issue; the engineer who takes it owns the finer breakdown).
 
 ## Open questions
 
